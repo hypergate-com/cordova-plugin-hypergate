@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-hypergate" version="1.0.15">
+    <name>Hypergate</name>
+    <description>Cordova Hypergate integration to authenticate with Kerberos on Android</description>
+    <license>MIT</license>
+    <keywords>Hypergate, Kerberos, Android, Auth, Authentification, Credentials</keywords>
+
+    <!-- android -->
+    <platform name="android">
+      <js-module src="www/hypergate.js" name="Hypergate">
+        <runs/>
+
+        <!-- window.Hypergate -->
+        <clobbers target="Hypergate" />
+
+      </js-module>
+
+      <config-file target="res/xml/config.xml" parent="/*">
+        <feature name="Hypergate">
+          <param name="android-package" value="com.hypergate.cordovaplugin.HypergateCordovaPlugin" />
+          <param name="onload" value="true" />
+        </feature>
+      </config-file>
+
+      <framework src="src/android/hypergate.gradle" custom="true" type="gradleReference" />
+      <source-file src="src/android/com/hypergate/cordovaplugin/HypergateCordovaPlugin.java" target-dir="src/com/hypergate/cordovaplugin/" />
+    </platform>
+</plugin>

@@ -1,0 +1,32 @@
+{
+  "name": "cordova-plugin-hypergate",
+  "version": "1.0.0",
+  "cordova": {
+    "id": "cordova-plugin-hypergate",
+    "platforms": [
+      "android"
+    ]
+  },
+  "description": "Cordova Hypergate integration to authenticate with Kerberos on Android",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@gitlab.papers.tech:10022/papers/cordova-plugin-hypergate.git"
+  },
+  "keywords": [
+    "hypergate",
+    "kerberos",
+    "android",
+    "auth",
+    "authentification",
+    "credentials"
+  ],
+  "author": "papers.ch",
+  "license": "MIT"
+}
