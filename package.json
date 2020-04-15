@@ -1,6 +1,8 @@
 {
   "name": "cordova-plugin-hypergate",
   "version": "1.0.0",
+  "homepage": "https://www.hypergate.com",
+
   "cordova": {
     "id": "cordova-plugin-hypergate",
     "platforms": [
@@ -17,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@gitlab.papers.tech:10022/papers/cordova-plugin-hypergate.git"
+    "url": "https://github.com/hypergate-com/cordova-plugin-hypergate.git"
   },
   "keywords": [
     "hypergate",
@@ -27,6 +29,6 @@
     "authentification",
     "credentials"
   ],
-  "author": "papers.ch",
+  "author": "Papers AG",
   "license": "MIT"
 }
