@@ -6,17 +6,18 @@ var cordova = require('cordova');
  */
 const Hypergate = {
     /**
-     *
-     * Request valid auth token for the passed token path. 
-     * Important: Do not cache the returned authToken in some way.
-     *            Each API Call should request the token, otherwise it is possible that the valid expired between the App start and the actuall API Call. 
-     *            The recommended way to implement it, is to use a request interceptor for each call.
-     * @param string[]                        authTokenPath     Auth token paths, i.e. ['HTTP@hypergate.com']
-     * @param (authToken: string) => void   successCallback   Called when Hypergate has a valid TGT, return an AuthToken
-     * @param (error: string) => void       errorCallback     Called whenever Hypergate is not in possession of a valid TGT.
+     * Request a valid auth token for the passed service principal.
+     * Important: Do not cache the returned authToken. Request a fresh token
+     *            for each API call, otherwise the token may have expired
+     *            between app start and the actual call. The recommended
+     *            pattern is a request interceptor that fetches the token
+     *            per request.
+     * @param string                       authTokenPath     Service principal, e.g. 'HTTP@securedbackend.com'
+     * @param (authToken: string) => void  successCallback   Called with the negotiate token when Hypergate has a valid TGT
+     * @param (error: string) => void      errorCallback     Called whenever Hypergate is not in possession of a valid TGT
      */
-    getToken: function (authTokenPaths, successCallback, errorCallback) {
-        exec(successCallback, errorCallback, "Hypergate", "getToken", [authTokenPaths]);
+    getToken: function (authTokenPath, successCallback, errorCallback) {
+        exec(successCallback, errorCallback, "Hypergate", "getToken", [authTokenPath]);
     }
 }
 

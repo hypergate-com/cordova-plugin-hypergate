@@ -34,7 +34,8 @@ public class HypergateCordovaPlugin extends CordovaPlugin {
                     return true;
                 }
                
-                Hypergate.Companion.requestTokenAsync(this.cordova.getActivity(), "SPNEGO:HOSTBASED:" + authTokenPath,
+                // SDK >= 1.6.0 adds the SPNEGO:HOSTBASED: prefix itself
+                Hypergate.Companion.requestTokenAsync(this.cordova.getActivity(), authTokenPath,
                         new Function1<String, Unit>() {
                             @Override
                             public Unit invoke(String negotiateToken) {
