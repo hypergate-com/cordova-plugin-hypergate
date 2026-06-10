@@ -7,7 +7,7 @@ hood it uses the [Hypergate SDK](https://github.com/hypergate-com/hypergate-sdk)
 (`com.hypergate:sdk` on Maven Central).
 
 For the full integration story, including how this fits into the NTLM deprecation, see:
-[Moving Your Android App off NTLM: Kerberos SSO with the Hypergate SDK](https://hypergate.com/blog/android-kerberos-sso-hypergate-sdk/).
+[Moving Your Android App off NTLM: Kerberos SSO with the Hypergate SDK](https://hypergate.com/blog/android-kerberos-sso-ntlm-sdk/).
 
 # Requirements
 
