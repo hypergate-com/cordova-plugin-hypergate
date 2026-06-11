@@ -1,71 +1,96 @@
-Hypergate Cordova Plugin
-======
+# Hypergate Cordova Plugin
 
-Add this plugin to your Cordova project to authenticate against Kerberos-protected services on
-Android through [Hypergate Authenticator](https://hypergate.com/authenticator-sso/). Under the
-hood it uses the [Hypergate SDK](https://github.com/hypergate-com/hypergate-sdk)
-(`com.hypergate:sdk` on Maven Central).
+Kerberos single sign-on for Cordova apps on Android through
+[Hypergate Authenticator](https://hypergate.com/authenticator-sso/). This plugin wraps the
+[Hypergate SDK](https://github.com/hypergate-com/hypergate-sdk) (`com.hypergate:sdk` on Maven
+Central) so your app can authenticate against Kerberos-protected services without passwords or NTLM.
 
-For the full integration story, including how this fits into the NTLM deprecation, see:
+If you are planning a migration away from NTLM, start with the blog post
 [Moving Your Android App off NTLM: Kerberos SSO with the Hypergate SDK](https://hypergate.com/blog/android-kerberos-sso-ntlm-sdk/).
+It covers the full integration story that this plugin implements for Cordova.
 
-# Requirements
+## How it works
 
-- Android platform (`cordova-android`)
+[Hypergate Authenticator](https://hypergate.com/authenticator-sso/) holds the user's Kerberos
+credentials (TGT) on the device. Your app never sees a password: it asks Hypergate for a
+SPNEGO/Negotiate token for a given service principal (SPN) and attaches it to the request. For
+WebView traffic this happens transparently once the managed configurations below are set:
+the WebView authenticates every AJAX and navigation request automatically.
+
+## Requirements
+
+- `cordova-android` (the plugin is Android-only; other platforms are unaffected)
 - A device managed by an MDM/EMM/UEM ([supported EMMs](https://hypergate.com/supported-emms/))
-  with Hypergate Authenticator deployed
+  with [Hypergate Authenticator](https://hypergate.com/authenticator-sso/) deployed
 
-# Installation
+## Installation
 
 ```bash
 cordova plugin add cordova-plugin-hypergate
 ```
 
-# Usage
+## Managed configuration
 
-After you include this plugin, your application exposes new managed configurations:
+Adding the plugin exposes managed configurations (app restrictions) on your app. Configure them
+in your MDM/EMM/UEM:
 
-- **Account type for HTTP Negotiate authentication**: which account type your WebView looks for
-  whenever there is an authentication challenge. This should be set to `ch.papers.hypergate`.
-- **Authentication server allowlist**: which servers are allowed to request authentication
-  tokens from Hypergate. Either a wildcard (`*`) or the domains you want to enable.
-- **Whether NTLMv2 authentication is enabled**: a WebView fallback toggle that has nothing to do
-  with Hypergate itself. Leave it disabled if you want an NTLM-free app.
+| Managed configuration | Value |
+|---|---|
+| Account type for HTTP Negotiate authentication | `ch.papers.hypergate` |
+| Authentication server allowlist | `*` or an explicit list of domains allowed to request tokens |
+| Whether NTLMv2 authentication is enabled | WebView NTLM fallback, unrelated to Hypergate; leave it disabled if you want an NTLM-free app |
 
-Once these options are configured in your MDM/EMM/UEM (the thing that pushes restrictions, also
-known as managed configurations), the WebView deals with all AJAX and native requests on its own,
-transparently from your app. All your requests are authenticated automatically.
+In addition, your app's package name must be on the discoverability list in the Hypergate
+Authenticator managed configuration, otherwise token requests fail with error 101.
 
-Note: if you do not use standard AJAX requests and have a native plugin performing requests
-instead, use the "Advanced usage" below.
+With these in place the WebView authenticates all requests on its own; most apps need no code
+at all.
 
-# Advanced usage
+## Advanced usage: requesting tokens manually
 
-Advanced usage comes in handy whenever you want to handle the token yourself. To request a token,
-call `Hypergate.getToken(authTokenPath, success, error)` with the service principal of your
-backend:
+If you perform requests outside the WebView (for example through a native HTTP plugin), request
+the Negotiate token yourself with the service principal of your backend:
 
 ```javascript
 window.Hypergate.getToken('HTTP@securedbackend.com', (token) => {
-    console.log(token);
+    // attach to your request:
+    // headers: { 'Authorization': 'Negotiate ' + token }
 }, (error) => {
-    console.error(error);
+    // no valid TGT, device not managed, or app not on the discoverability list
 });
 ```
 
-The token goes into the `Authorization` header as `Negotiate <token>`.
+With TypeScript, declare the window first: `declare var window: any;`
 
-If you are using TypeScript, you probably have to declare the window variable first:
+Do not cache the token. Request a fresh one for every API call, because a cached token may
+have expired between app start and the actual request. The recommended pattern is a request
+interceptor that fetches a token per request.
 
-`declare var window: any;`
+## API
 
-# Important
+### `Hypergate.getToken(servicePrincipal, success, error)`
 
-Do not cache the returned token. Request a fresh token for each API call, otherwise the token may
-have expired between app start and the actual call. The recommended pattern is a request
-interceptor that fetches the token per request.
+| Parameter | Type | Description |
+|---|---|---|
+| `servicePrincipal` | `string` | SPN of the target service, e.g. `HTTP@securedbackend.com` |
+| `success` | `(token: string) => void` | Called with the raw Negotiate token |
+| `error` | `(error: string) => void` | Called when no valid token could be obtained |
 
-# Sample app
+## Troubleshooting
+
+- Error 101 ("no accounts found"): the app's package name is missing from the
+  discoverability list, or the device has no Hypergate account at all.
+- Token issued but the backend returns 401: verify the SPN matches the backend's service
+  principal and that the account has AES key material (see
+  [Kerberos RC4 removal](https://hypergate.com/blog/kerberos-rc4-removal-mobile-sso/)).
+- Nothing happens in the WebView: check that the account type managed configuration is set
+  to `ch.papers.hypergate` and the server is covered by the allowlist.
+
+## Sample app
 
 A complete runnable example lives at
 [hypergate-cordova-sample](https://github.com/hypergate-com/hypergate-cordova-sample).
+
+## License
+
+MIT, see [LICENSE](LICENSE). Questions go to [support@hypergate.com](mailto:support@hypergate.com).
